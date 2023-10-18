@@ -4,9 +4,9 @@ create database timeBack;
 CREATE TABLE usuario (
   id SERIAL PRIMARY KEY NOT NULL,
   name VARCHAR(50) NOT NULL,
-  numero_matricula VARCHAR(20) NOT NULL,
+  numero_matricula VARCHAR(20) NOT NULL UNIQUE,
   email VARCHAR(100) NOT NULL UNIQUE,
-  senha VARCHAR(30) NOT NULL UNIQUE,
+  senha VARCHAR(30) NOT NULL ,
   is_adm BOOLEAN NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
