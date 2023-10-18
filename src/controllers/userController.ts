@@ -37,8 +37,17 @@ export const getUser = async (req:Request, res:Response) => {
   }
 };
 
+// Criar interface para objeto dessestruturado
+interface UserRequestBody {
+  name: string;
+  numero_matricula: string;
+  email: string;
+  senha: string;
+  is_adm: boolean;
+}
+
 export const addUser = async (req:Request, res:Response) => {
-  const { name, numero_matricula, email, senha, is_adm } = req.body;
+  const { name, numero_matricula, email, senha, is_adm }: UserRequestBody = req.body;
   try {
     const q =
       "INSERT INTO usuario(name, numero_matricula, email, senha, is_adm) VALUES($1, $2, $3, $4, $5)";
@@ -56,7 +65,7 @@ export const addUser = async (req:Request, res:Response) => {
 };
 
 export const updateUser = async (req:Request, res:Response) => {
-  const { name, numero_matricula, email, senha, is_adm } = req.body;
+  const { name, numero_matricula, email, senha, is_adm } : UserRequestBody = req.body;
   const { id } = req.params;
   try {
     const q =
