@@ -1,5 +1,9 @@
 import {Request, Response} from 'express';
 import client from "../database/db";
+import { userRepository } from '../repositories/userRepository';
+
+const userRepo = new userRepository();
+
 
 export const getUsers = async (_:Request, res:Response) => {
   try {
@@ -38,7 +42,7 @@ export const getUser = async (req:Request, res:Response) => {
 };
 
 // Criar interface para objeto dessestruturado
-interface UserRequestBody {
+export interface UserRequestBody {
   name: string;
   numero_matricula: string;
   email: string;
@@ -48,20 +52,20 @@ interface UserRequestBody {
 
 export const addUser = async (req:Request, res:Response) => {
   const { name, numero_matricula, email, senha, is_adm }: UserRequestBody = req.body;
-  try {
-    const q =
-      "INSERT INTO usuario(name, numero_matricula, email, senha, is_adm) VALUES($1, $2, $3, $4, $5)";
 
-    const values = [name, numero_matricula, email, senha, is_adm];
+  const userExists = await userRepo.findByEmail(email);
 
-    // Use o cliente PostgreSQL para executar a consulta
-    await client.query(q, values);
+    if (userExists) {
+      return res.status(400).json({ error: 'This email already exists' });
 
-    return res.status(200).json("Usuário criado com sucesso.");
-  } catch (err) {
-    console.error("Erro ao adicionar usuário:", err);
-    return res.status(500).json("Ocorreu um erro ao adicionar o usuário.");
-  }
+    }
+
+    const user = await userRepo.create( {
+      name, numero_matricula, email, senha, is_adm
+    })
+
+    res.json(user)
+ 
 };
 
 export const updateUser = async (req:Request, res:Response) => {
