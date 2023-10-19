@@ -47,11 +47,12 @@ export interface UserRequestBody {
   numero_matricula: string;
   email: string;
   senha: string;
-  is_adm: boolean;
+  confirmSenha?:string;
 }
 
 export const addUser = async (req:Request, res:Response) => {
-  const { name, numero_matricula, email, senha, is_adm }: UserRequestBody = req.body;
+  // dessestruturar req
+  const { name, numero_matricula, email, senha }: UserRequestBody = req.body;
 
   const userExists = await userRepo.findByEmail(email);
 
@@ -60,22 +61,26 @@ export const addUser = async (req:Request, res:Response) => {
 
     }
 
+    
+    
+    // criar usuario
     const user = await userRepo.create( {
-      name, numero_matricula, email, senha, is_adm
-    })
+      name, numero_matricula, email, senha: senha
+    }, res)
+
 
     res.json(user)
  
 };
 
 export const updateUser = async (req:Request, res:Response) => {
-  const { name, numero_matricula, email, senha, is_adm } : UserRequestBody = req.body;
+  const { name, numero_matricula, email, senha } : UserRequestBody = req.body;
   const { id } = req.params;
   try {
     const q =
-      "UPDATE usuario SET name = $1, numero_matricula = $2, email = $3, senha= $4, is_adm = $5 WHERE id = $6";
+      "UPDATE usuario SET name = $1, numero_matricula = $2, email = $3, senha= $4, WHERE id = $5";
 
-    const values = [name, numero_matricula, email, senha, is_adm, id];
+    const values = [name, numero_matricula, email, senha, id];
 
     // Use o cliente PostgreSQL para executar a consulta
     await client.query(q, values);
