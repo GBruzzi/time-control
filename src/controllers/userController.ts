@@ -1,11 +1,10 @@
-import {Request, Response} from 'express';
+import { Request, Response } from "express";
 import client from "../database/db";
-import { userRepository } from '../repositories/userRepository';
+import { userRepository } from "../repositories/userRepository";
 
 const userRepo = new userRepository();
 
-
-export const getUsers = async (_:Request, res:Response) => {
+export const getUsers = async (_: Request, res: Response) => {
   try {
     const q = "SELECT * FROM usuario";
     const result = await client.query(q);
@@ -20,7 +19,7 @@ export const getUsers = async (_:Request, res:Response) => {
   }
 };
 
-export const getUser = async (req:Request, res:Response) => {
+export const getUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const q = "SELECT * from usuario WHERE id = $1";
@@ -47,34 +46,35 @@ export interface UserRequestBody {
   numero_matricula: string;
   email: string;
   senha: string;
-  confirmSenha?:string;
+  confirmSenha?: string;
 }
 
-export const addUser = async (req:Request, res:Response) => {
+export const addUser = async (req: Request, res: Response) => {
   // dessestruturar req
   const { name, numero_matricula, email, senha }: UserRequestBody = req.body;
 
   const userExists = await userRepo.findByEmail(email);
 
-    if (userExists) {
-      return res.status(400).json({ error: 'This email already exists' });
+  if (userExists) {
+    return res.status(400).json({ error: "This email already exists" });
+  }
 
-    }
+  // criar usuario
+  const user = await userRepo.create(
+    {
+      name,
+      numero_matricula,
+      email,
+      senha: senha,
+    },
+    res
+  );
 
-    
-    
-    // criar usuario
-    const user = await userRepo.create( {
-      name, numero_matricula, email, senha: senha
-    }, res)
-
-
-    res.json(user)
- 
+  res.json(user);
 };
 
-export const updateUser = async (req:Request, res:Response) => {
-  const { name, numero_matricula, email, senha } : UserRequestBody = req.body;
+export const updateUser = async (req: Request, res: Response) => {
+  const { name, numero_matricula, email, senha }: UserRequestBody = req.body;
   const { id } = req.params;
   try {
     const q =
@@ -92,7 +92,7 @@ export const updateUser = async (req:Request, res:Response) => {
   }
 };
 
-export const deleteUser = async (req:Request, res:Response) => {
+export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const q = "DELETE FROM usuario WHERE id = $1";
