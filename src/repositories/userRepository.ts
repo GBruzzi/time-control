@@ -1,7 +1,7 @@
 import client from "../database/db";
 import { UserRequestBody } from "../controllers/userController";
 import { Response, response } from "express";
-import bcrypt from 'bcrypt';
+
 
 
 export class userRepository {
@@ -11,11 +11,8 @@ export class userRepository {
     email,
     senha,
   }: UserRequestBody, res: Response) {
-    // if (senha != confirmSenha) {
-    //   return res.status(400).json({ error: 'As senhas precisam ser iguais' });
-
-    // }
-    const senhaHash = await bcrypt.hash(senha, 10)
+    
+    
     const is_admDefault = false;
     const result = await client.query(
       `
@@ -23,7 +20,7 @@ export class userRepository {
       VALUES($1,$2,$3,$4,$5)
       RETURNING *
     `,
-      [name, numero_matricula, email, senhaHash, is_admDefault]
+      [name, numero_matricula, email, senha, is_admDefault]
     );
 
     // Acesse os resultados usando a propriedade 'rows'

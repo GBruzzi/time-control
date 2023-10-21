@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import client from "../database/db";
 import { userRepository } from "../repositories/userRepository";
+import bcrypt from "bcrypt";
 
 const userRepo = new userRepository();
 
@@ -51,7 +52,13 @@ export interface UserRequestBody {
 
 export const addUser = async (req: Request, res: Response) => {
   // dessestruturar req
-  const { name, numero_matricula, email, senha }: UserRequestBody = req.body;
+  const {
+    name,
+    numero_matricula,
+    email,
+    senha,
+    confirmSenha,
+  }: UserRequestBody = req.body;
 
   const userExists = await userRepo.findByEmail(email);
 
@@ -59,13 +66,19 @@ export const addUser = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "This email already exists" });
   }
 
+  if (senha != confirmSenha) {
+    return res.status(400).json({ error: "As senhas precisam ser iguais" });
+  }
+
+  const senhaHash = await bcrypt.hash(senha, 10);
+
   // criar usuario
   const user = await userRepo.create(
     {
       name,
       numero_matricula,
       email,
-      senha: senha,
+      senha: senhaHash,
     },
     res
   );
