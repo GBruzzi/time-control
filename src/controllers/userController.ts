@@ -50,6 +50,7 @@ export interface UserRequestBody {
   confirmSenha?: string;
 }
 
+// Cadastrar usuário
 export const addUser = async (req: Request, res: Response) => {
   // dessestruturar req
   const {
@@ -85,6 +86,45 @@ export const addUser = async (req: Request, res: Response) => {
 
   res.json(user);
 };
+
+interface logUser {
+  numero_matricula: string;
+  senha: string;
+}
+
+// validar o login do usuario
+export const logUser = async (req: Request, res: Response ) => {
+  const {numero_matricula , senha }: logUser = req.body
+  
+  try {
+    // Consulta SQL para obter o hash da senha a partir do banco de dados
+    const query = 'SELECT senha FROM usuario WHERE numero_matricula = $1';
+    const result = await client.query(query, [numero_matricula]);
+
+    if (result.rows.length === 1) {
+      const hash = result.rows[0].senha;
+
+      // Verificar se a senha fornecida corresponde ao hash no banco de dados
+      const senhaCorrespondente = await bcrypt.compare(senha, hash);
+
+      if (senhaCorrespondente) {
+        // Credenciais corretas - usuário logado com sucesso
+        res.status(200).json({ message: 'Login bem-sucedido' });
+      } else {
+        // Credenciais incorretas - senha inválida
+        res.status(401).json({ message: 'Senha inválida' });
+      }
+    } else {
+      // Credenciais incorretas - usuário não existe
+      res.status(401).json({ message: 'Usuário não encontrado' });
+    }
+  } catch (error) {
+    // Lidar com erros
+    console.error('Erro ao consultar o banco de dados:', error);
+    res.status(500).json({ message: 'Erro no servidor' });
+  }
+};
+
 
 export const updateUser = async (req: Request, res: Response) => {
   const { name, numero_matricula, email, senha }: UserRequestBody = req.body;
