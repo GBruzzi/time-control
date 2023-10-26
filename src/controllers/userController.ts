@@ -131,7 +131,7 @@ export const updateUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const q =
-      "UPDATE usuario SET name = $1, numero_matricula = $2, email = $3, senha= $4, WHERE id = $5";
+      "UPDATE usuario SET name = $1, numero_matricula = $2, email = $3, senha= $4 WHERE id = $5";
 
     const values = [name, numero_matricula, email, senha, id];
 
